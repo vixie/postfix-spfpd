@@ -1,6 +1,7 @@
 #ifndef PS_WHITE_H
 #define PS_WHITE_H
 
+#include <sys/types.h>
 #include <syslog.h>
 #include <stdlib.h>
 #include <netdb.h>

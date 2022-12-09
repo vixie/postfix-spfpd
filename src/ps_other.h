@@ -7,6 +7,7 @@
 #include <syslog.h>
 #include <unistd.h>
 #include <netdb.h>
+#include <netinet/in.h>
 #include <spf2/spf.h>
 #include "ps_getopt.h"
 
@@ -32,11 +33,11 @@ void ResponsePrint ( SPF_response_t* spf_response, SPF_client_request_t* req );
 
 void ResponseFree ( SPF_response_t** spf_response );
 
-inline void PostfixAccessReject ( const SPF_client_request_t* const req );
+void PostfixAccessReject ( const SPF_client_request_t* const req );
 
-inline void PostfixAccessDunno ( const char* const s, const SPF_client_request_t* const req );
+void PostfixAccessDunno ( const char* const s, const SPF_client_request_t* const req );
 
-inline void PostfixAccessOk ( const char* const s, const SPF_client_request_t* const req );
+void PostfixAccessOk ( const char* const s, const SPF_client_request_t* const req );
 
 #define REQUEST_LIMIT	100
 #define RESULTSIZE		1024
@@ -48,15 +49,18 @@ inline void PostfixAccessOk ( const char* const s, const SPF_client_request_t* c
 
 #define RESIZE_RESULT(n) do { \
 	if (result == NULL) { \
-	result_len = 256 + n; \
-	result = malloc(result_len); \
-	result[0] = '\0'; \
+		result_len = 256 + n; \
+		result = malloc(result_len); \
+		if (result == NULL) abort(); \
+		result[0] = '\0'; \
 	} \
 	else if (strlen(result) + n >= result_len) { \
-	result_len = result_len + (result_len >> 1) + 8 + n; \
-	result = realloc(result, result_len); \
-} \
+		result_len = result_len + (result_len >> 1) + 8 + n; \
+		result = realloc(result, result_len); \
+		if (result == NULL) abort(); \
+	} \
 } while(0)
+
 #define APPEND_RESULT(n) do { \
 	partial_result = SPF_strresult(n); \
 	RESIZE_RESULT(strlen(partial_result)); \

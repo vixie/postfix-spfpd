@@ -20,7 +20,7 @@ void GetOpt ( int argc, char** argv )
 				exit ( 1 );
 				break;
 			case 'v':
-				printf ( "Version: 1.28\n" );
+				printf ( "Version: 1.28 [redbarn]\n" );
 				exit ( 1 );
 				break;
 			case 'w':

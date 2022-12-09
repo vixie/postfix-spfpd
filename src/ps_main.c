@@ -12,7 +12,7 @@ int main ( int argc, char* argv[] )
 	SPF_response_t* spf_response = NULL;
 	SPF_errcode_t err;
 
-	int request_limit = 0;
+	int request_number = 0;
 	int res = 0;
 
 	const char *partial_result;
@@ -20,6 +20,7 @@ int main ( int argc, char* argv[] )
 	int result_len = 0;
 
 	openlog ( progname, LOG_PID | LOG_CONS | LOG_NDELAY | LOG_NOWAIT, LOG_MAIL );
+	if ( ga.m_debug == 2 ) syslog ( LOG_INFO, "%s: startup", module );
 
 	SPF_error_handler = SPF_error_syslog;
 	SPF_warning_handler = SPF_warning_syslog;
@@ -47,16 +48,23 @@ int main ( int argc, char* argv[] )
 	if ( ga.m_white != 0 )
 		ReadWhiteFromFile ( ga.m_white );
 
-	request_limit = 0;
-
-	while ( request_limit < REQUEST_LIMIT )
+	while ( request_number < REQUEST_LIMIT )
 	{
-		request_limit ++;
-
-		if ( request_limit == 0 )
+		if ( req != NULL )
+		{
 			free ( req );
+			req = NULL;
+		}
 
 		req = (SPF_client_request_t *) malloc ( sizeof ( SPF_client_request_t) );
+		if ( req == NULL )
+		{
+			syslog ( LOG_WARNING,
+				"%s: malloc (req) failed, exiting",
+				module );
+			res = 0;
+			break;
+		}
 		memset ( req, 0, sizeof ( SPF_client_request_t) );
 
 		if ( ReadRequest ( req ) )
@@ -66,7 +74,9 @@ int main ( int argc, char* argv[] )
 			break;
 		}
 
-		if ( ga.m_debug != 0 ) syslog ( LOG_DEBUG, "%s: reincarnation %d", module, request_limit );
+		request_number ++;
+		if ( ga.m_debug != 0 ) syslog ( LOG_DEBUG, "%s: request %d",
+					        module, request_number );
 
 		FREE_REQUEST ( spf_request );
 
@@ -88,7 +98,7 @@ int main ( int argc, char* argv[] )
 			continue;
 		}
 
-		if ( strchr ( req->sender, '@' ) > 0 )
+		if ( strchr ( req->sender, '@' ) != NULL )
 		{
 			if ( SPF_request_set_env_from ( spf_request, req->sender ) )
 			{
@@ -158,7 +168,8 @@ int main ( int argc, char* argv[] )
 	FREE_REQUEST ( spf_request );
 	FREE ( spf_server, SPF_server_free );
 
-	syslog ( LOG_INFO, "%s: Terminating with result %d, Reincarnation: %d", module, res, request_limit );
+	syslog ( LOG_INFO, "%s: exit(%d), requests: %d",
+		module, res, request_number );
 
 	return res;
 }

@@ -3,7 +3,6 @@
 
 #include <string.h>
 #include <stdio.h>
-#include <linux/limits.h>
 
 #include "ps_getopt.h"
 #include "ps_white.h"

@@ -9,7 +9,7 @@ char AddWhite4 ( uint32_t net, uint32_t mask )
 	{
 		white4 = malloc ( sizeof ( *white4) );
 
-		if ( white4 != 0 )
+		if ( white4 != NULL )
 		{
 			white4->m_net = net;
 			white4->m_msk = mask;
@@ -229,7 +229,7 @@ char StrNet6ToB ( const char* string, __uint128_t* ip, __uint128_t* mask )
 		{
 			string += l + 1;
 
-			char n = 0;
+			unsigned int n = 0;
 
 			while ( *string != 0 )
 			{

@@ -137,25 +137,6 @@ void ResponseLog ( const char* context, SPF_response_t* spf_response )
 	}
 }
 
-/*inline void ContinueError ( char* pf_result, int* res, const SPF_client_request_t * const req )
-{
-	*res = 255;
-	sprintf ( pf_result,
-		"450 temporary failure: please contact postmaster if the error remains" );
-
-	printf ( "action=%s\n\n", pf_result );
-
-	fflush ( stdout );
-
-	syslog ( LOG_INFO,
-		"action=%s (ip=%s from=%s helo=%s to=%s)",
-		pf_result,
-		req->ip,
-		req->sender,
-		req->helo,
-		req->rcpt_to );
-}*/
-
 inline void PostfixAccessReject ( const SPF_client_request_t* const req )
 {
 	const char* reject = "450 temporary failure: please contact postmaster if the error remains";

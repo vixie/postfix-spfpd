@@ -99,7 +99,7 @@ char WriteWhiteToFile ( const char* filename, const char* dbfilename )
 
 				if ( ! ferror ( wlfile ) )
 				{
-					unsigned char i;
+					unsigned int i;
 					for ( i = 0; i < sizeof ( line) / sizeof ( *line); i ++ )
 					{
 						if ( line[i] != 0 )

@@ -1,47 +1,49 @@
-CC=gcc
-CFLAGS=-Wall
-LIBS= -lspf2 -lpthread -lnsl -lresolv
-BINDIR=./bin
-BINFILE=postfix-policyd-spf-c
+CFLAGS= -Wall -Wno-format-security -I/usr/local/include
+LDFLAGS= -L/usr/local/lib
+LIBS= -lspf2 -lpthread
+BINDIR= ./bin
+BINFILE= postfix-spfpd
 
-main: dir ps_white ps_read_request ps_other ps_white_test ps_white_write ps_white_read ps_getopt
-	$(CC) $(CFLAGS) $(LIBS) \
-	ps_main.c \
-	${BINDIR}/ps_white.o \
-	${BINDIR}/ps_read_request.o \
-	${BINDIR}/ps_other.o \
-	${BINDIR}/ps_white_test.o \
-	${BINDIR}/ps_white_write.o \
-	${BINDIR}/ps_white_read.o \
-	${BINDIR}/ps_getopt.o \
-	-o ${BINDIR}/${BINFILE}
+OBJFILES= ${BINDIR}/ps_main.o ${BINDIR}/ps_white.o \
+	${BINDIR}/ps_read_request.o ${BINDIR}/ps_other.o \
+	${BINDIR}/ps_white_test.o ${BINDIR}/ps_white_write.o \
+	${BINDIR}/ps_white_read.o ${BINDIR}/ps_getopt.o
 
-ps_white: dir
-	$(CC) $(CFLAGS) $(INCLUDE) -c -o ${BINDIR}/ps_white.o ps_white.c
+all: ${BINDIR} ${BINDIR}/${BINFILE}
 
-ps_getopt: dir
-	$(CC) $(CFLAGS) $(INCLUDE) -c -o ${BINDIR}/ps_getopt.o ps_getopt.c
-
-ps_white_test: dir
-	$(CC) $(CFLAGS) $(INCLUDE) -c -o ${BINDIR}/ps_white_test.o ps_white_test.c
-
-ps_read_request: dir
-	$(CC) $(CFLAGS) $(INCLUDE) -c -o ${BINDIR}/ps_read_request.o ps_read_request.c
-
-ps_other: dir
-	$(CC) $(CFLAGS) $(INCLUDE) -c -o ${BINDIR}/ps_other.o ps_other.c
-
-ps_white_write: dir
-	$(CC) $(CFLAGS) $(INCLUDE) -c -o ${BINDIR}/ps_white_write.o ps_white_write.c
-
-ps_white_read: dir
-	$(CC) $(CFLAGS) $(INCLUDE) -c -o ${BINDIR}/ps_white_read.o ps_white_read.c
-
-dir:
-	mkdir -p ${BINDIR}
+${BINDIR}:
+	mkdir ${BINDIR}
 
 clean:
-	rm -rf ${BINDIR}
+	rm -f ${OBJFILES} ${BINDIR}/${BINFILE}
+	( [ -d ${BINDIR} ] && rmdir ${BINDIR} ) || true
 
-install: main
-	cp ${BINDIR}/${BINFILE} /usr/sbin/
+install: ${BINDIR}/${BINFILE} ${DESTROOT}/libexec
+	cp ${BINDIR}/${BINFILE} ${DESTROOT}/libexec/${BINFILE}
+
+${BINDIR}/${BINFILE}: ${OBJFILES}
+	${CC} ${LDFLAGS} ${LIBS} -o ${BINDIR}/${BINFILE} ${OBJFILES}
+
+${BINDIR}/ps_main.o: ps_main.c
+	${CC} ${CFLAGS} -c -o ${BINDIR}/ps_main.o ps_main.c
+
+${BINDIR}/ps_white.o: ps_white.c
+	${CC} ${CFLAGS} -c -o ${BINDIR}/ps_white.o ps_white.c
+
+${BINDIR}/ps_getopt.o: ps_getopt.c
+	${CC} ${CFLAGS} -c -o ${BINDIR}/ps_getopt.o ps_getopt.c
+
+${BINDIR}/ps_white_test.o: ps_white_test.c
+	${CC} ${CFLAGS} -c -o ${BINDIR}/ps_white_test.o ps_white_test.c
+
+${BINDIR}/ps_read_request.o: ps_read_request.c
+	${CC} ${CFLAGS} -c -o ${BINDIR}/ps_read_request.o ps_read_request.c
+
+${BINDIR}/ps_other.o: ps_other.c
+	${CC} ${CFLAGS} -c -o ${BINDIR}/ps_other.o ps_other.c
+
+${BINDIR}/ps_white_write.o: ps_white_write.c
+	${CC} ${CFLAGS} -c -o ${BINDIR}/ps_white_write.o ps_white_write.c
+
+${BINDIR}/ps_white_read.o: ps_white_read.c
+	${CC} ${CFLAGS} -c -o ${BINDIR}/ps_white_read.o ps_white_read.c

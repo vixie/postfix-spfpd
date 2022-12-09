@@ -9,6 +9,8 @@ void ReadWhiteFromFile ( const char* filename )
 	if ( ga.m_white == 0 )
 		return;
 
+	if ( strlen ( ga.m_white ) + strlen ( ".db" ) + 1 > sizeof dbfilename )
+		abort();
 	strcpy ( dbfilename, ga.m_white );
 	strcat ( dbfilename, ".db" );
 
