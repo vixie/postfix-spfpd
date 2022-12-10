@@ -27,6 +27,8 @@ void ResponseLogErrors (const char* context,
 						SPF_response_t* spf_response,
 						SPF_errcode_t err );
 
+void RequestFree ( SPF_client_request_t ** );
+
 void ResponseLog ( const char* context, SPF_response_t* spf_response );
 
 void ResponsePrint ( SPF_response_t* spf_response, SPF_client_request_t* req );

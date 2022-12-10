@@ -4,6 +4,6 @@
 #include "ps_other.h"
 #include "ps_getopt.h"
 
-char ReadRequest ( SPF_client_request_t* const req );
+SPF_client_request_t* ReadRequest ( void );
 
 #endif

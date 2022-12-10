@@ -4,12 +4,24 @@ const char* const POSTFIX_DUNNO = "DUNNO";
 const char* const POSTFIX_REJECT = "REJECT";
 const char* const POSTFIX_OK = "OK";
 
+void RequestFree ( SPF_client_request_t **req )
+{
+	if ( *req != NULL )
+	{
+		FREE ( (*req)->ip, free );
+		FREE ( (*req)->sender, free );
+		FREE ( (*req)->helo, free );
+		FREE ( (*req)->rcpt_to, free );
+		FREE ( *req, free );
+	}
+}
+
 void ResponseFree ( SPF_response_t** spf_response )
 {
-	if ( *spf_response )
+	if ( *spf_response != NULL )
 		SPF_response_free ( *spf_response );
 
-	*spf_response = 0;
+	*spf_response = NULL;
 }
 
 void ResponsePrint ( SPF_response_t* spf_response, SPF_client_request_t* req )

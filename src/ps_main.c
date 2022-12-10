@@ -31,18 +31,15 @@ int main ( int argc, char* argv[] )
 		spf_server = SPF_server_new ( SPF_DNS_CACHE, 1 );
 	else
 		spf_server = SPF_server_new ( SPF_DNS_CACHE, 0 );
+	if ( spf_server == NULL ) abort ( );
 
 	err = SPF_server_set_explanation ( spf_server, DEFAULT_EXPLANATION, &spf_response );
-
 	if ( err )
 	{
 		ResponseLogErrors ( "Error setting default explanation",
-			spf_response,
-			err );
-
+				    spf_response, err );
 		res = 255;
 	}
-
 	ResponseFree ( &spf_response );
 
 	if ( ga.m_white != 0 )
@@ -50,26 +47,12 @@ int main ( int argc, char* argv[] )
 
 	while ( request_number < REQUEST_LIMIT )
 	{
-		if ( req != NULL )
-		{
-			free ( req );
-			req = NULL;
-		}
-
-		req = (SPF_client_request_t *) malloc ( sizeof ( SPF_client_request_t) );
+		req = ReadRequest ( );
 		if ( req == NULL )
 		{
-			syslog ( LOG_WARNING,
-				"%s: malloc (req) failed, exiting",
-				module );
-			res = 0;
-			break;
-		}
-		memset ( req, 0, sizeof ( SPF_client_request_t) );
-
-		if ( ReadRequest ( req ) )
-		{
-			syslog ( LOG_WARNING, "%s: io closed while reading, exiting", module );
+			syslog ( LOG_WARNING, "%s: %s: exiting", module,
+				 feof ( stdin ) ? "io closed while reading"
+					: "badly formatted policy request" );
 			res = 0;
 			break;
 		}
@@ -161,8 +144,11 @@ int main ( int argc, char* argv[] )
 		res = SPF_response_result ( spf_response );
 
 		fflush ( stdout );
+
+		RequestFree ( &req );
 	}
 
+	RequestFree ( &req );
 	FREE ( result, free );
 	ResponseFree ( &spf_response );
 	FREE_REQUEST ( spf_request );

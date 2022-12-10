@@ -1,6 +1,6 @@
 CFLAGS= -Wall -Wno-format-security -I/usr/local/include
 LDFLAGS= -L/usr/local/lib
-LIBS= -lspf2 -lpthread
+LIBS= -lspf2
 BINDIR= ./bin
 BINFILE= postfix-spfpd
 
