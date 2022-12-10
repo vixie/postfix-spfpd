@@ -19,7 +19,9 @@ int main ( int argc, char* argv[] )
 	char *result = NULL;
 	int result_len = 0;
 
-	openlog ( progname, LOG_PID | LOG_CONS | LOG_NDELAY | LOG_NOWAIT, LOG_MAIL );
+	int logopts = LOG_PID | LOG_CONS | LOG_NDELAY | LOG_NOWAIT;
+	if ( ga.m_debug == 2 ) logopts |= LOG_PERROR;
+	openlog ( progname, logopts, LOG_MAIL );
 	if ( ga.m_debug == 2 ) syslog ( LOG_INFO, "%s: startup", module );
 
 	SPF_error_handler = SPF_error_syslog;

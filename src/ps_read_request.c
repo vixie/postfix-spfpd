@@ -18,20 +18,24 @@ SPF_client_request_t* ReadRequest ( void )
 	char* line = NULL;
 	bool args = false;
 	bool err = false;
+	size_t linecap = 0;
+	ssize_t linelen;
 
-	while ( getline ( &line, NULL, stdin ) != -1 )
+	while ( (linelen = getline ( &line, &linecap, stdin ) ) != -1 )
 	{
-		char* nl = strchr ( line, '\n' );
-		if ( nl == NULL ) err = true;
-		if ( err ) break;
+		char* nl = &line[linelen - 1];
+		if ( *nl != '\n' )
+		{
+			syslog ( LOG_INFO, "ReadRequest: malformed line" );
+			break;
+		}
+		if ( nl == line ) break;
 		*nl = '\0';
 
 		if ( ga.m_debug == 2 ) syslog ( LOG_DEBUG, "%s: line: %s", module, line );
 
 		switch ( line[0] )
 		{
-		case '\0':
-			break;
 		case 'c':
 			if ( strncasecmp (	line,
 				req_client_address,
